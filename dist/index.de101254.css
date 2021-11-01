@@ -1,0 +1,110 @@
+body {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+ul {
+  padding-left: 0;
+}
+
+li {
+  list-style: none;
+}
+
+.myBook {
+  padding-top: 50px;
+  border: 1px solid black;
+  width: 80%;
+  height: 80vh;
+  background-color: hsl(22, 81%, 69%);
+  margin: 100px auto 0;
+  display: flex;
+}
+
+/* search book */
+.search__container {
+  border: 1px solid white;
+  flex: 2;
+  padding: 40px;
+}
+
+.search__book {
+  /* width: 70%; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search__book input {
+  height: 30px;
+  font-size: 18px;
+  border-radius: 4px;
+  border: 1px solid black;
+}
+
+.search__book input:focus {
+  outline: none;
+}
+
+.search__book button {
+  height: 30px;
+  width: 50px;
+  background-color: beige;
+  outline: none;
+  margin-left: 30px;
+  /* border: none; */
+  border-color: beige;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search__result {
+  margin-top: 70px;
+}
+
+.book-list {
+  padding: 10px;
+  margin: 0 auto;
+}
+
+.book-item {
+  display: flex;
+  margin: 10px 0;
+  justify-content: space-between;
+  /* justify-content: space-between; */
+}
+
+.book-thumnail {
+  width: 120px;
+  height: 70px;
+  flex: 2;
+  /* margin-right: 100px; */
+}
+
+.book-thumnail img {
+  /* border-radius: 50%; */
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.book-dsec {
+  flex: 4;
+}
+
+.divider {
+  background-color: #ffffff;
+  margin: 0 auto;
+  width: 80%;
+  height: 0.5px;
+}
+
+/* book detail */
+.book__detail-container {
+  border: 1px solid beige;
+  flex: 5;
+}
+.book__detail {
+}
+
+/*# sourceMappingURL=index.de101254.css.map */

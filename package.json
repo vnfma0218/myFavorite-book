@@ -1,0 +1,19 @@
+{
+  "name": "booksearch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.24.0",
+    "http-proxy-middleware": "^2.0.1"
+  },
+  "devDependencies": {
+    "parcel": "^2.0.0"
+  }
+}
