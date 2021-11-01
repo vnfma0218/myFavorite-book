@@ -1,89 +1,188 @@
 body {
   margin: 0;
   box-sizing: border-box;
+  background: #f2709c; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #ff9472,
+    #f2709c
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #ff9472,
+    #f2709c
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
 ul {
   padding-left: 0;
+  margin: 0;
 }
 
 li {
   list-style: none;
 }
-/* loading spinner */
-
-.spinner {
-  margin: 5rem auto;
-  text-align: center;
-}
-.spinner svg {
-  height: 6rem;
-  width: 6rem;
-  fill: #f38e82;
-  animation: rotate 2s infinite linear;
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
 .myBook {
-  padding-top: 130px;
-  /* border: 1px solid black; */
-  border-radius: 10px;
-  width: 80%;
+  width: 70%;
+  max-width: 120rem;
   min-height: 80rem;
   background: #f9f5f3;
-  margin: 100px auto 0;
+  margin: 50px auto 0;
+  border-radius: 10px;
+  padding: 10px 0px;
+}
+
+/* header */
+.header {
+  padding: 0 30px;
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 50px;
+}
+
+.logo {
+  display: flex;
+  flex: 1;
 }
 
 /* search book */
 .search__container {
   background-color: #fff;
   border: 1px solid white;
+  min-height: 100rem;
   flex: 2;
-  /* padding: 40px; */
 }
 
 .search__book {
-  /* width: 70%; */
   display: flex;
-  justify-content: center;
+  height: 50px;
   align-items: center;
-  background-color: #fbf3e4;
-  padding: 10px;
-  border-radius: 10px;
+  background-color: #fff;
+  border-radius: 20px;
+  /* padding: 5px 10px 5px; */
+  flex: 2;
 }
 
 .search__book input {
+  flex: 2;
   border: none;
   background: none;
-  height: 30px;
-  font-size: 18px;
+  height: 20px;
+  font-size: 14px;
   border-radius: 4px;
+  padding-left: 30px;
 }
 
 .search__book input:focus {
   outline: none;
 }
 
-.search__book button {
-  height: 30px;
-  width: 50px;
-  background-color: #fff;
+.search__btn {
+  background: #f2709c; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #ff9472,
+    #f2709c
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #ff9472,
+    #f2709c
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+  text-transform: uppercase;
+  height: 100%;
+  width: 150px;
   outline: none;
-  margin-left: 30px;
-  /* border: none; */
-  border-color: #fff;
+  padding: 10px;
+  margin-left: auto;
+  border: none;
+  color: #fff;
   border-radius: 10px;
   cursor: pointer;
+  border-radius: 10rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.search__icon {
+  width: 24px;
+  height: 100%;
+  fill: #fff;
+  margin-right: 10px;
+}
+
+.search__btn span {
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 15px;
+}
+
+/* bookmark */
+
+.book__marks {
+  height: 70px;
+  position: relative;
+  flex: 1;
+}
+
+.bookmark__btn:hover {
+  background-color: #f2efee;
+}
+
+.bookmark__btn {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin: 0 auto;
+  height: 100%;
+  font-family: inherit;
+  color: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 1.5rem;
+  transition: all 0.3s;
+  align-items: center;
+}
+.bookmark__icon {
+  fill: #f38e82;
+  height: 40px;
+  width: 30px;
+}
+
+/* bookmark list */
+
+.bookmarks-list {
+  background-color: #fff;
+  width: 400px;
+  position: absolute;
+  z-index: 100;
+  right: -30px;
+  transition: all 0.5s 0.2s;
+  opacity: 0;
+  visibility: hidden;
+}
+.bookmarks-list .bookmarks-item {
+  padding: 10px 30px;
+  cursor: pointer;
+}
+
+.bookmark__btn:hover + .bookmarks-list,
+.bookmarks-list:hover {
+  opacity: 1;
+  visibility: visible;
+}
+
+.book__container {
+  display: flex;
 }
 
 .search__result {
@@ -96,18 +195,26 @@ li {
   margin: 0 auto;
 }
 
+.noResults__message {
+  font-weight: 600;
+  color: #615551;
+  text-align: center;
+  margin-top: 50px;
+}
+
 .book-item {
   display: flex;
   /* margin: 10px 0; */
-  padding: 10px 0;
+  padding: 14px;
   justify-content: space-between;
   align-items: center;
-  background-color: #fbf3e4;
+  background-color: #fff;
   /* justify-content: space-between; */
   transition: all 0.3s;
 }
 .book-item:hover {
   transform: translateY(-2px);
+  background-color: #f9f5f3;
 }
 
 .book-thumnail {
@@ -129,7 +236,7 @@ li {
   margin-left: 10px;
 }
 .title {
-  color: #f38e82;
+  color: #faaca8;
 }
 .author {
   font-size: 13px;
@@ -144,13 +251,17 @@ li {
 /* pagination */
 .book-pagination {
   position: relative;
+  margin-top: 15px;
 }
 .prev__btn,
 .next__btn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: transparent;
+  width: 80px;
+  background-color: #f9f5f3;
+  height: 35px;
+  border-radius: 10rem;
+  cursor: pointer;
+  border: none;
+  color: #faaca8;
 }
 .prev__btn {
   position: absolute;
@@ -162,8 +273,30 @@ li {
 
 /* book detail */
 .book__detail-container {
-  border: 1px solid beige;
   flex: 5;
+}
+
+.btn__bookmarks {
+  background: #f2709c;
+  border-radius: 50%;
+  border: none;
+  padding: 10px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.btn__bookmarks svg {
+  width: 30px;
+  height: 30px;
+  fill: #fff;
+}
+
+.noDetail__message {
+  font-weight: 600;
+  color: #615551;
+  text-align: center;
+  margin-top: 50px;
 }
 
 .book__detail {
@@ -172,7 +305,7 @@ li {
 }
 
 .book__main-img {
-  width: 35%;
+  width: 30%;
   margin: 0 auto;
 }
 
@@ -188,6 +321,7 @@ li {
 
 .book__title {
   text-align: center;
+  color: #f38e82;
 }
 
 .content__control {
@@ -232,4 +366,29 @@ li {
 }
 .price {
   padding-right: 10px;
+  color: #f38e82;
+  font-weight: 700;
+}
+
+/* loading spinner */
+
+.spinner {
+  margin: 5rem auto;
+  text-align: center;
+}
+.spinner svg {
+  height: 6rem;
+  width: 6rem;
+  fill: #f38e82;
+  animation: rotate 2s infinite linear;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

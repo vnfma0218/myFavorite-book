@@ -13,8 +13,12 @@ export default class ResultsView{
     addHandlerRender(handler){
         this._parentEl.addEventListener('click', (e) => {
             const bookItem = e.target.closest('.book-item')
-            console.log(bookItem)
-            this._isbn = bookItem.dataset.isbn
+            if(!bookItem) return
+            const isbn = bookItem.dataset.isbn
+            handler(isbn)
+            
+        })
+        window.addEventListener('load',() => {
             handler()
         })
      }
@@ -40,22 +44,26 @@ export default class ResultsView{
     }
     
     _generateMarkup() {
-        return this._data
-            .map(
-            (book) => `
-            <li class="book-item" data-isbn=${book.id}>
-                <div class="book-thumnail">
-                    <img src="${book.imageUrl ? book.imageUrl : noBookImg}" alt="${book.title}" />
-                </div>
-                <div class="book-dsec">
-                    <p class="title">${book.title.slice(0,10)}</p>
-                    <p class="author">${book.authors[0]}</p>
-                </div>
-            </li>
-            `
-            )
-            .join('');
+        if(this._data.length>0){
+            return this._data
+                .map(
+                (book) => `
+                <li class="book-item" data-isbn=${book.id}>
+                    <div class="book-thumnail">
+                        <img src="${book.imageUrl ? book.imageUrl : noBookImg}" alt="${book.title}" />
+                    </div>
+                    <div class="book-dsec">
+                        <p class="title">${book.title.slice(0,10)}</p>
+                        <p class="author">${book.authors[0]}</p>
+                    </div>
+                </li>
+                `
+                )
+                .join('');
+        }else{
+            return '<h4 class="noResults__message"> ❌No results found for your search. try again <h1>';
         }
+    }
 }
 
 export default new ResultsView()

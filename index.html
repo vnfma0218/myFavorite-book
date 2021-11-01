@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="kor">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -7,74 +7,113 @@
     <title>Document</title>
     <script type="module" src="src/js/controller.js" defer></script>
     <link rel="stylesheet" href="src/css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&family=Sunflower:wght@300;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="container">
       <section class="myBook">
-        <div class="search__container">
-          <!-- <div class="spinner">
-          <svg>
-            <use href="src/img/icons.svg#icon-loader"></use>
-          </svg>
-        </div> -->
+        <header class="header">
+          <div class="logo">
+            <img src="#" alt="" />
+            <h2 class="app__name">Logo</h2>
+          </div>
           <form class="search__book">
-            <input type="text" />
-            <button>검색</button>
+            <input type="text" placeholder="Search your favorite books.." />
+            <button class="search__btn">
+              <svg class="search__icon">
+                <use href="src/img/icons.svg#icon-search"></use>
+              </svg>
+              <span>Search</span>
+            </button>
           </form>
-          <div class="search__result">
-            <ul class="book-list">
-              <!-- <li class="book-item">
+          <div class="book__marks">
+            <button class="bookmark__btn">
+              <svg class="bookmark__icon">
+                <use href="src/img/icons.svg#icon-bookmark"></use>
+              </svg>
+              <span>Bookmarks</span>
+            </button>
+            <ul class="bookmarks-list">
+              <!-- <li class="bookmarks-item book-item">
                 <div class="book-thumnail">
                   <img src="./src/img/book.jpg" alt="book" />
                 </div>
                 <div class="book-dsec">
-                  <p class="title">미움받을 용기 ㄷㄹㄹ</p>
+                  <p class="title">미움받을 용기</p>
                   <p class="author">기무라타쿠야</p>
                 </div>
               </li> -->
             </ul>
           </div>
-          <div class="book-pagination">
-            <!-- <button class="prev__btn">
-              <span>page 1</span>
-            </button>
-            <button class="next__btn">
-              <span>page 2</span>
-            </button> -->
-          </div>
-        </div>
-        <div class="book__detail-container">
-          <article class="book__detail">
-            <!-- <div class="book__main-img">
-              <img src="./src/img/book.jpg" alt="test" />
-            </div>
-            <div class="book__content">
-              <h1 class="book__title">
-                미움받을 용기(특별 합본호)(한정판)(양장본 HardCover)
-              </h1>
-              <div class="content__control">
-                <div class="content__control-authors">
-                  <p>저자</p>
-                  <p>기시미 이치로, 고가 후미타케</p>
-                  <p>역자</p>
-                  <p>전경아</p>
-                </div>
-                <div class="content__control-publisher">
-                  <p>출판</p>
-                  <p>인풀루엔셜</p>
-                  <p>2018.3.2.</p>
-                </div>
-                <div class="content__control-pageNum">
-                  <p>페이지수</p>
-                  <p>4220</p>
-                </div>
-                <div class="content__control-price">
-                  <p class="price">판매가</p>
-                  <p>17,820</p>
-                </div>
-              </div>
+        </header>
+        <div class="book__container">
+          <div class="search__container">
+            <!-- <div class="spinner">
+              <svg>
+                <use href="src/img/icons.svg#icon-loader"></use>
+              </svg>
             </div> -->
-          </article>
+
+            <div class="search__result">
+              <ul class="book-list">
+                <!-- <li class="book-item">
+                    <div class="book-thumnail">
+                      <img src="./src/img/book.jpg" alt="book" />
+                    </div>
+                    <div class="book-dsec">
+                      <p class="title">미움받을 용기 ㄷㄹㄹ</p>
+                      <p class="author">기무라타쿠야</p>
+                    </div>
+                  </li> -->
+              </ul>
+            </div>
+            <div class="book-pagination">
+              <!-- <button class="prev__btn">
+                  <span>page 1</span>
+                </button>
+                <button class="next__btn">
+                  <span>page 2</span>
+                </button> -->
+            </div>
+          </div>
+          <div class="book__detail-container">
+            <article class="book__detail">
+              <!-- <div class="book__main-img">
+                <img src="./src/img/book.jpg" alt="test" />
+              </div>
+              <div class="book__content">
+                <h1 class="book__title">
+                  미움받을 용기(특별 합본호)(한정판)(양장본 HardCover)
+                </h1>
+                <div class="content__control">
+                  <div class="content__control-authors">
+                    <p>저자</p>
+                    <p>기시미 이치로, 고가 후미타케</p>
+                    <p>역자</p>
+                    <p>전경아</p>
+                  </div>
+                  <div class="content__control-publisher">
+                    <p>출판</p>
+                    <p>인풀루엔셜</p>
+                    <p>2018.3.2.</p>
+                  </div>
+                  <div class="content__control-pageNum">
+                    <p>페이지수</p>
+                    <p>4220</p>
+                  </div>
+                  <div class="content__control-price">
+                    <p class="price">판매가</p>
+                    <p>17,820</p>
+                  </div>
+                </div>
+              </div> -->
+            </article>
+          </div>
         </div>
       </section>
     </div>

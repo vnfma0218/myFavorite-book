@@ -23,7 +23,7 @@ class PaginationView {
     if (curPage === 1 && !isLast) {
       return `
         <button data-goto="${curPage + 1}" class="page-btn next__btn">
-            <span>page ${curPage + 1}</span>
+            <span>Page ${curPage + 1}</span>
         </button>
       `;
     }
@@ -33,10 +33,10 @@ class PaginationView {
     if (curPage !== 1 && !isLast) {
       return `
         <button data-goto="${curPage - 1}" class="page-btn prev__btn">
-            <span>page ${curPage - 1}</span>
+            <span>Page ${curPage - 1}</span>
         </button>
         <button data-goto="${curPage + 1}" class="page-btn next__btn">
-            <span>page ${curPage + 1}</span>
+            <span>Page ${curPage + 1}</span>
         </button>
       `;
     }
@@ -45,7 +45,7 @@ class PaginationView {
     if (curPage !== 1 && isLast) {
       return `
         <button data-goto="${curPage - 1}" class="page-btn prev__btn">
-            <span>page ${curPage - 1}</span>
+            <span>Page ${curPage - 1}</span>
         </button>
       `;
     }

@@ -461,6 +461,8 @@ function hmrAcceptRun(bundle, id) {
 },{}],"lA0Es":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _modelJs = require("./model.js");
+var _bookMarksViewJs = require("./views/bookMarksView.js");
+var _bookMarksViewJsDefault = parcelHelpers.interopDefault(_bookMarksViewJs);
 var _detailViewJs = require("./views/detailView.js");
 var _detailViewJsDefault = parcelHelpers.interopDefault(_detailViewJs);
 var _paginationViewJs = require("./views/paginationView.js");
@@ -469,11 +471,8 @@ var _resultsViewJs = require("./views/resultsView.js");
 var _resultsViewJsDefault = parcelHelpers.interopDefault(_resultsViewJs);
 var _searchViewJs = require("./views/searchView.js");
 var _searchViewJsDefault = parcelHelpers.interopDefault(_searchViewJs);
-const controlBookDetail = async function() {
+const controlBookDetail = async function(isbn) {
     try {
-        //get isbn
-        const isbn = _resultsViewJsDefault.default.getIsbn();
-        if (!isbn) return;
         _detailViewJsDefault.default.renderSpinner();
         // get data
         await _modelJs.loadBookDetail(isbn);
@@ -488,10 +487,10 @@ const controlSearchResults = async function(gotoPage) {
         _resultsViewJsDefault.default.renderSpinner();
         // 1) get input
         const query = _searchViewJsDefault.default.getQuery();
-        console.log(query, gotoPage);
         if (!query) return;
+        console.log(query, gotoPage);
         // 2) get data
-        await _modelJs.loadSearchResults(query, gotoPage);
+        await _modelJs.loadSearchResults(query);
         // 3) render html
         _resultsViewJsDefault.default.render(_modelJs.state.search.results);
         _paginationViewJsDefault.default.render(_modelJs.state.search);
@@ -501,7 +500,6 @@ const controlSearchResults = async function(gotoPage) {
 };
 const controlPagingResults = async function(gotoPage) {
     try {
-        console.log(gotoPage);
         _resultsViewJsDefault.default.renderSpinner();
         await _modelJs.loadSearchResults(_modelJs.state.search.query, gotoPage);
         _resultsViewJsDefault.default.render(_modelJs.state.search.results);
@@ -510,14 +508,29 @@ const controlPagingResults = async function(gotoPage) {
         console.log(err);
     }
 };
+const controlBookmark = function() {
+    // add or delete bookmark
+    if (_modelJs.state.book.bookmarked) _modelJs.deleteBookmakrs(_modelJs.state.book);
+    else _modelJs.addBookmarks(_modelJs.state.book);
+    // update book detail
+    _detailViewJsDefault.default.update(_modelJs.state.book);
+    //add to html
+    _bookMarksViewJsDefault.default.render(_modelJs.state.bookmarks);
+};
+const controlbookmarkRender = function() {
+    _bookMarksViewJsDefault.default.render(_modelJs.state.bookmarks);
+};
 const init = function() {
     _searchViewJsDefault.default.addHandlerSearch(controlSearchResults);
     _resultsViewJsDefault.default.addHandlerRender(controlBookDetail);
     _paginationViewJsDefault.default.addHandlerClick(controlPagingResults);
+    _detailViewJsDefault.default.addBookmarkHandler(controlBookmark);
+    _bookMarksViewJsDefault.default.initializeBookmark(controlbookmarkRender);
+    _bookMarksViewJsDefault.default.addBookmarkHandler(controlBookDetail);
 };
 init();
 
-},{"./model.js":"1pVJj","./views/searchView.js":"jcq1q","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","./views/resultsView.js":"5peDB","./views/detailView.js":"hewtX","./views/paginationView.js":"2PAUD"}],"1pVJj":[function(require,module,exports) {
+},{"./model.js":"1pVJj","./views/detailView.js":"hewtX","./views/paginationView.js":"2PAUD","./views/resultsView.js":"5peDB","./views/searchView.js":"jcq1q","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","./views/bookMarksView.js":"8OWKf"}],"1pVJj":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state
@@ -525,6 +538,10 @@ parcelHelpers.export(exports, "state", ()=>state
 parcelHelpers.export(exports, "loadBookDetail", ()=>loadBookDetail
 );
 parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults
+);
+parcelHelpers.export(exports, "addBookmarks", ()=>addBookmarks
+);
+parcelHelpers.export(exports, "deleteBookmakrs", ()=>deleteBookmakrs
 );
 var _config = require("./config");
 var _helpers = require("./helpers");
@@ -536,10 +553,12 @@ const state = {
         page: 1,
         results: [],
         isLast: false
-    }
+    },
+    bookmarks: []
 };
 const loadBookDetail = async function(isbn) {
     try {
+        if (!isbn) return;
         const data = await _helpers.getJSON(`${_config.API_URL}?target=isbn`, isbn);
         state.book = data.documents.map((book)=>{
             return {
@@ -553,7 +572,11 @@ const loadBookDetail = async function(isbn) {
                 publisher: book.publisher,
                 datetime: book.datetime
             };
-        });
+        })[0];
+        const bookmarked = state.bookmarks.some((b)=>b.id === state.book.id
+        );
+        if (!bookmarked) state.book.bookmarked = false;
+        else state.book.bookmarked = true;
     } catch (error) {
     }
 };
@@ -577,6 +600,29 @@ const loadSearchResults = async function(query, page = 1) {
         console.log(err);
     }
 };
+const init = function() {
+    const storage = localStorage.getItem('bookmarks');
+    if (storage) state.bookmarks = JSON.parse(storage);
+};
+init();
+const persistBookmarks = function() {
+    localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+const addBookmarks = function(book) {
+    state.bookmarks.push(book);
+    state.book.bookmarked = true;
+    persistBookmarks();
+};
+const deleteBookmakrs = function(book) {
+    const bookmarks = [
+        ...state.bookmarks
+    ];
+    const filteredBookmakrs = bookmarks.filter((b)=>b.id !== book.id
+    );
+    state.book.bookmarked = false;
+    state.bookmarks = filteredBookmakrs;
+    persistBookmarks();
+};
 
 },{"./config":"6V52N","./helpers":"9RX9R","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"6V52N":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -592,7 +638,7 @@ parcelHelpers.export(exports, "BOOK_PER_PAGE", ()=>BOOK_PER_PAGE
 const API_URL = 'https://dapi.kakao.com/v3/search/book';
 const API_KEY = 'd6cc2b464f604773f53fa114c017c2d0';
 const TIMEOUT_SEC = 10;
-const BOOK_PER_PAGE = 5;
+const BOOK_PER_PAGE = 7;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"ciiiV":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -2221,87 +2267,87 @@ module.exports = CancelToken;
     return typeof payload === 'object' && payload.isAxiosError === true;
 };
 
-},{}],"jcq1q":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-class SearchView {
-    _parentEl = document.querySelector('.search__book');
-    getQuery() {
-        const query = this._parentEl.querySelector('.search__book input').value;
-        this._clearInput();
-        return query;
-    }
-    _clearInput() {
-        this._parentEl.querySelector('.search__book input').value = '';
-    }
-    addHandlerSearch(handler) {
-        this._parentEl.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handler();
-        });
-    }
-}
-exports.default = new SearchView();
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"5peDB":[function(require,module,exports) {
+},{}],"hewtX":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg"); // Parcel 2
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-var _noBookCoverAvailableJpg = require("url:../../img/no-book-cover-available.jpg");
+var _noBookCoverAvailableJpg = require("url:../../img/no-book-cover-available.jpg"); // Parcel 2
 var _noBookCoverAvailableJpgDefault = parcelHelpers.interopDefault(_noBookCoverAvailableJpg);
-class ResultsView {
-    _parentEl = document.querySelector('.book-list');
+class DetailView {
+    _parentEl = document.querySelector('.book__detail');
     render(data) {
         this._data = data;
         const markup = this._generateMarkup();
         this._clear();
         this._parentEl.insertAdjacentHTML('afterbegin', markup);
     }
-    addHandlerRender(handler) {
-        this._parentEl.addEventListener('click', (e)=>{
-            const bookItem = e.target.closest('.book-item');
-            console.log(bookItem);
-            this._isbn = bookItem.dataset.isbn;
+    addBookmarkHandler(handler) {
+        this._parentEl.addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn__bookmarks');
+            if (!btn) return;
             handler();
         });
     }
-    getIsbn() {
-        return this._isbn;
-    }
-    renderSpinner() {
-        const markup = `
-        <div class="spinner">
-            <svg>
-            <use href="${_iconsSvgDefault.default}#icon-loader"></use>
-            </svg>
-        </div>
-        `;
+    update(data) {
+        this._data = data;
+        const markup = this._generateMarkup();
         this._clear();
         this._parentEl.insertAdjacentHTML('afterbegin', markup);
     }
     _clear() {
         this._parentEl.innerHTML = '';
     }
+    renderSpinner() {
+        const markup = `
+    <div class="spinner">
+        <svg>
+        <use href="${_iconsSvgDefault.default}#icon-loader"></use>
+        </svg>
+    </div>
+    `;
+        this._clear();
+        this._parentEl.insertAdjacentHTML('afterbegin', markup);
+    }
     _generateMarkup() {
-        return this._data.map((book)=>`
-            <li class="book-item" data-isbn=${book.id}>
-                <div class="book-thumnail">
-                    <img src="${book.imageUrl ? book.imageUrl : _noBookCoverAvailableJpgDefault.default}" alt="${book.title}" />
-                </div>
-                <div class="book-dsec">
-                    <p class="title">${book.title.slice(0, 10)}</p>
-                    <p class="author">${book.authors[0]}</p>
-                </div>
-            </li>
-            `
-        ).join('');
+        if (Object.keys(this._data).length !== 0) return `
+        <button class="btn__bookmarks">
+          <svg>
+            <use href="${_iconsSvgDefault.default}#icon-bookmark${this._data.bookmarked ? '-fill' : ''}"></use>
+          </svg>
+        </button>
+        <div class="book__main-img">
+            <img src="${this._data.imageUrl ? this._data.imageUrl : _noBookCoverAvailableJpgDefault.default}" alt="test" />
+        </div>
+        <div class="book__content">
+        <h1 class="book__title">
+            ${this._data.title}
+        </h1>
+        <div class="content__control">
+          <div class="content__control-authors">
+            <p>저자</p>
+            <p>${this._data.authors}</p>
+            <p>역자</p>
+            <p>${this._data.translators}</p>
+          </div>
+          <div class="content__control-publisher">
+            <p>출판</p>
+            <p>${this._data.publisher.length > 0 ? this._data.publisher : '없음'}</p>
+            <p>${this._data.datetime.split('T')[0]}</p>
+          </div>
+          <div class="content__control-price">
+            <p class="price">판매가</p>
+            <p>${this._data.price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')}</p>
+          </div>
+        </div>
+      </div> 
+        `;
+        else return '<h1 class="noDetail__message"> 😀 Start by searching books. Have fun!  <h1>';
     }
 }
-exports.default = ResultsView;
-exports.default = new ResultsView();
+exports.default = new DetailView();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","url:../../img/icons.svg":"5jwFy","url:../../img/no-book-cover-available.jpg":"8Fc19"}],"5jwFy":[function(require,module,exports) {
+},{"url:../../img/icons.svg":"5jwFy","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","url:../../img/no-book-cover-available.jpg":"8Fc19"}],"5jwFy":[function(require,module,exports) {
 module.exports = require('./helpers/bundle-url').getBundleURL('71ti3') + "icons.e7078503.svg" + "?" + Date.now();
 
 },{"./helpers/bundle-url":"chiK4"}],"chiK4":[function(require,module,exports) {
@@ -2342,67 +2388,7 @@ exports.getOrigin = getOrigin;
 },{}],"8Fc19":[function(require,module,exports) {
 module.exports = require('./helpers/bundle-url').getBundleURL('71ti3') + "no-book-cover-available.6fa19b1e.jpg" + "?" + Date.now();
 
-},{"./helpers/bundle-url":"chiK4"}],"hewtX":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-var _iconsSvg = require("url:../../img/icons.svg"); // Parcel 2
-var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-class DetailView {
-    _parentEl = document.querySelector('.book__detail');
-    render(data) {
-        this._data = data;
-        const markup = this._generateMarkup();
-        this._clear();
-        this._parentEl.insertAdjacentHTML('afterbegin', markup);
-    }
-    _clear() {
-        this._parentEl.innerHTML = '';
-    }
-    renderSpinner() {
-        const markup = `
-    <div class="spinner">
-        <svg>
-        <use href="${_iconsSvgDefault.default}#icon-loader"></use>
-        </svg>
-    </div>
-    `;
-        this._clear();
-        this._parentEl.insertAdjacentHTML('afterbegin', markup);
-    }
-    _generateMarkup() {
-        return this._data.map((book)=>`
-        <div class="book__main-img">
-            <img src="${book.imageUrl}" alt="test" />
-        </div>
-        <div class="book__content">
-        <h1 class="book__title">
-            ${book.title}
-        </h1>
-        <div class="content__control">
-          <div class="content__control-authors">
-            <p>저자</p>
-            <p>${book.authors}</p>
-            <p>역자</p>
-            <p>${book.translators}</p>
-          </div>
-          <div class="content__control-publisher">
-            <p>출판</p>
-            <p>${book.publisher.length > 0 ? book.publisher : '없음'}</p>
-            <p>${book.datetime.split('T')[0]}</p>
-          </div>
-          <div class="content__control-price">
-            <p class="price">판매가</p>
-            <p>${book.price.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')}</p>
-          </div>
-        </div>
-      </div> 
-        `
-        ).join('');
-    }
-}
-exports.default = new DetailView();
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV","url:../../img/icons.svg":"5jwFy"}],"2PAUD":[function(require,module,exports) {
+},{"./helpers/bundle-url":"chiK4"}],"2PAUD":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 class PaginationView {
@@ -2426,22 +2412,22 @@ class PaginationView {
         //   first, there are no other page
         if (curPage === 1 && !isLast) return `
         <button data-goto="${curPage + 1}" class="page-btn next__btn">
-            <span>page ${curPage + 1}</span>
+            <span>Page ${curPage + 1}</span>
         </button>
       `;
         // there are other page
         if (curPage !== 1 && !isLast) return `
         <button data-goto="${curPage - 1}" class="page-btn prev__btn">
-            <span>page ${curPage - 1}</span>
+            <span>Page ${curPage - 1}</span>
         </button>
         <button data-goto="${curPage + 1}" class="page-btn next__btn">
-            <span>page ${curPage + 1}</span>
+            <span>Page ${curPage + 1}</span>
         </button>
       `;
         // last page
         if (curPage !== 1 && isLast) return `
         <button data-goto="${curPage - 1}" class="page-btn prev__btn">
-            <span>page ${curPage - 1}</span>
+            <span>Page ${curPage - 1}</span>
         </button>
       `;
         return '';
@@ -2452,6 +2438,137 @@ class PaginationView {
 }
 exports.default = new PaginationView();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}]},["kS06O","lA0Es"], "lA0Es", "parcelRequire62cc")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"5peDB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _iconsSvg = require("url:../../img/icons.svg"); // Parcel 2
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var _noBookCoverAvailableJpg = require("url:../../img/no-book-cover-available.jpg");
+var _noBookCoverAvailableJpgDefault = parcelHelpers.interopDefault(_noBookCoverAvailableJpg);
+class ResultsView {
+    _parentEl = document.querySelector('.book-list');
+    render(data) {
+        this._data = data;
+        const markup = this._generateMarkup();
+        this._clear();
+        this._parentEl.insertAdjacentHTML('afterbegin', markup);
+    }
+    addHandlerRender(handler) {
+        this._parentEl.addEventListener('click', (e)=>{
+            const bookItem = e.target.closest('.book-item');
+            if (!bookItem) return;
+            const isbn = bookItem.dataset.isbn;
+            handler(isbn);
+        });
+        window.addEventListener('load', ()=>{
+            handler();
+        });
+    }
+    getIsbn() {
+        return this._isbn;
+    }
+    renderSpinner() {
+        const markup = `
+        <div class="spinner">
+            <svg>
+            <use href="${_iconsSvgDefault.default}#icon-loader"></use>
+            </svg>
+        </div>
+        `;
+        this._clear();
+        this._parentEl.insertAdjacentHTML('afterbegin', markup);
+    }
+    _clear() {
+        this._parentEl.innerHTML = '';
+    }
+    _generateMarkup() {
+        if (this._data.length > 0) return this._data.map((book)=>`
+                <li class="book-item" data-isbn=${book.id}>
+                    <div class="book-thumnail">
+                        <img src="${book.imageUrl ? book.imageUrl : _noBookCoverAvailableJpgDefault.default}" alt="${book.title}" />
+                    </div>
+                    <div class="book-dsec">
+                        <p class="title">${book.title.slice(0, 10)}</p>
+                        <p class="author">${book.authors[0]}</p>
+                    </div>
+                </li>
+                `
+        ).join('');
+        else return '<h4 class="noResults__message"> ❌No results found for your search. try again <h1>';
+    }
+}
+exports.default = ResultsView;
+exports.default = new ResultsView();
+
+},{"url:../../img/icons.svg":"5jwFy","url:../../img/no-book-cover-available.jpg":"8Fc19","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"jcq1q":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class SearchView {
+    _parentEl = document.querySelector('.search__book');
+    getQuery() {
+        const query = this._parentEl.querySelector('.search__book input').value;
+        this._clearInput();
+        return query;
+    }
+    _clearInput() {
+        this._parentEl.querySelector('.search__book input').value = '';
+    }
+    addHandlerSearch(handler) {
+        this._parentEl.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handler();
+        });
+    }
+}
+exports.default = new SearchView();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}],"8OWKf":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _iconsSvg = require("url:../../img/icons.svg"); // Parcel 2
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var _noBookCoverAvailableJpg = require("url:../../img/no-book-cover-available.jpg");
+var _noBookCoverAvailableJpgDefault = parcelHelpers.interopDefault(_noBookCoverAvailableJpg);
+class BookMarksView {
+    _parentEl = document.querySelector('.bookmarks-list');
+    render(data) {
+        this._data = data;
+        const markup = this._generateMarkup();
+        this._clear();
+        this._parentEl.insertAdjacentHTML('afterbegin', markup);
+    }
+    _clear() {
+        this._parentEl.innerHTML = '';
+    }
+    addBookmarkHandler(handler) {
+        this._parentEl.addEventListener('click', (e)=>{
+            const bookItem = e.target.closest('.bookmarks-item');
+            if (!bookItem) return;
+            handler(bookItem.dataset.id);
+        });
+    }
+    initializeBookmark(handler) {
+        window.addEventListener('load', ()=>{
+            handler();
+        });
+    }
+    _generateMarkup() {
+        return this._data.map((book)=>`
+          <li class="bookmarks-item book-item" data-id=${book.id}>
+              <div class="book-thumnail">
+                  <img src="${book.imageUrl ? book.imageUrl : _noBookCoverAvailableJpgDefault.default}" alt="book" />
+              </div>
+              <div class="book-dsec">
+                  <p class="title">${book.title.slice(0, 10)}</p>
+                  <p class="author">${book.authors[0]}</p>
+              </div>
+          </li>
+    `
+        ).join('');
+    }
+}
+exports.default = new BookMarksView();
+
+},{"url:../../img/icons.svg":"5jwFy","url:../../img/no-book-cover-available.jpg":"8Fc19","@parcel/transformer-js/src/esmodule-helpers.js":"ciiiV"}]},["kS06O","lA0Es"], "lA0Es", "parcelRequire62cc")
 
 //# sourceMappingURL=index.05cf099e.js.map
