@@ -4,4 +4,4 @@ dist/
 .cache/
 
 # config files
-./src/js/config.js
+./src/js/config.jsd
