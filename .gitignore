@@ -2,3 +2,6 @@ node_modules/
 # Parcel related files
 dist/
 .cache/
+
+# config files
+./src/js/config.jsd
